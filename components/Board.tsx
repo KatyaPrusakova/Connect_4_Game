@@ -2,12 +2,10 @@
 
 import { observer } from "mobx-react-lite";
 import { cn } from "@/lib/utils";
-import { gameStore, type Player, type Cell } from "@/store/gameStore";
+import { gameStore, type Cell } from "@/store/gameStore";
 
-const PLAYER_COLORS: Record<Player, string> = {
-  1: "bg-red-500",
-  2: "bg-yellow-400",
-};
+// index 0 unused; indices 1-4 map to player numbers
+const PLAYER_COLORS = ["", "bg-red-500", "bg-yellow-400", "bg-green-500", "bg-purple-500"];
 
 const CellDisc = ({ value }: { value: Cell }) => (
   <div
@@ -19,12 +17,12 @@ const CellDisc = ({ value }: { value: Cell }) => (
 );
 
 export const Board = observer(() => {
-  const { board, gameOver } = gameStore;
+  const { board, gameOver, cols } = gameStore;
 
   return (
     <div className="bg-blue-600 p-5 rounded-2xl shadow-2xl select-none">
       <div className="flex gap-3">
-        {Array.from({ length: 7 }, (_, col) => {
+        {Array.from({ length: cols }, (_, col) => {
           const isColFull = board[0][col] !== null;
           return (
           <button

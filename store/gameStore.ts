@@ -1,10 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
-const ROWS = 6;
-const COLS = 7;
-
-export type Player = 1 | 2;
-export type Cell = Player | null;
+export type Cell = number | null;
 
 const WIN_DIRECTIONS = [
   [0, 1],  // horizontal
@@ -14,9 +10,14 @@ const WIN_DIRECTIONS = [
 ] as const;
 
 class GameStore {
+  // configurable settings
+  rows = 6;
+  cols = 7;
+  numPlayers = 2;
+
   board: Cell[][] = this.emptyBoard();
-  currentPlayer: Player = 1;
-  winner: Player | null = null;
+  currentPlayer = 1;
+  winner: number | null = null;
   isDraw = false;
 
   constructor() {
@@ -40,8 +41,15 @@ class GameStore {
     } else if (this.board[0].every((c) => c !== null)) {
       this.isDraw = true;
     } else {
-      this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+      this.currentPlayer = (this.currentPlayer % this.numPlayers) + 1;
     }
+  }
+
+  applySettings(rows: number, cols: number, numPlayers: number): void {
+    this.rows = rows;
+    this.cols = cols;
+    this.numPlayers = numPlayers;
+    this.reset();
   }
 
   reset(): void {
@@ -52,7 +60,7 @@ class GameStore {
   }
 
   private lowestEmptyRow(col: number): number {
-    for (let r = ROWS - 1; r >= 0; r--) {
+    for (let r = this.rows - 1; r >= 0; r--) {
       if (this.board[r][col] === null) return r;
     }
     return -1;
@@ -65,7 +73,7 @@ class GameStore {
       for (const sign of [1, -1] as const) {
         let r = row + dr * sign;
         let c = col + dc * sign;
-        while (r >= 0 && r < ROWS && c >= 0 && c < COLS && this.board[r][c] === player) {
+        while (r >= 0 && r < this.rows && c >= 0 && c < this.cols && this.board[r][c] === player) {
           count++;
           r += dr * sign;
           c += dc * sign;
@@ -77,7 +85,7 @@ class GameStore {
   }
 
   private emptyBoard(): Cell[][] {
-    return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(null));
+    return Array.from({ length: this.rows }, () => Array<Cell>(this.cols).fill(null));
   }
 }
 
